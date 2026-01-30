@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter / notebooks (if you ever add them)
+.ipynb_checkpoints/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# VS Code (optional)
+.vscode/
+
+# Logs / temp
+*.log
+*.tmp
+
+# Figures / outputs (optional: keep if you want tracked)
+# *.png
+# *.jpg
