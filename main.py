@@ -29,7 +29,10 @@ if not success:
      raise Exception("Failed to train the model after multiple retries. Try starting with a smaller learning rate.") # Exit if training was unsuccessful 
 
 # Create the figure with plots 
-fig, (ax1, ax2) = make_figure(df, a, b, losses) 
+fig, (ax1, ax2) = make_figure(df, a, b, losses)
+fig.tight_layout()
+fig.savefig("result.png", dpi=200)
+print("Saved plot to result.png")
 
 # Show the plots 
-plt.show()
+# plt.show()
