@@ -33,19 +33,27 @@ def plot_fit(ax, df, a, b):
     ax.set_ylabel("y")
     ax.legend()
 
-def make_figure(df, a, b, losses):
-    '''
-    Function that creates a figure with two subplots: one for the data + fitted line,
-    and one for the losses over epochs.
-    
-    :param df: dataframe with x and y columns
-    :param a: slope of the fitted line
-    :param b: intercept of the fitted line
-    :param losses: losses array to plot
-    :return: tuple containing the figure and axes objects
-    '''
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-    plot_fit(ax1, df, a, b)
-    plot_losses(ax2, losses)
-    fig.tight_layout()
+import numpy as np
+import matplotlib.pyplot as plt
+
+def make_figure(df, losses, x_fit=None, y_fit=None):
+    x = np.array(df["x"], dtype=float)
+    y = np.array(df["y"], dtype=float)
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+
+    # Left: data + fitted curve/line
+    ax1.scatter(x, y)
+    if x_fit is not None and y_fit is not None:
+        ax1.plot(x_fit, y_fit)
+    ax1.set_title("Data + Fit")
+    ax1.set_xlabel("x")
+    ax1.set_ylabel("y")
+
+    # Right: loss curve
+    ax2.plot(range(1, len(losses) + 1), losses)
+    ax2.set_title("MSE over epochs")
+    ax2.set_xlabel("epoch")
+    ax2.set_ylabel("MSE")
+
     return fig, (ax1, ax2)

@@ -1,7 +1,9 @@
-from linear_regression import train_linear_regression, NumericalInstabilityError 
-from data_gen import generate_random_linear_dataset 
+from linear_regression import train_linear_regression, NumericalInstabilityError, train_poly2_regression 
+from data_gen import generate_random_linear_dataset , generate_random_quadratic_dataset
 from plotting import make_figure 
 import matplotlib.pyplot as plt 
+import numpy as np
+
 
 lr = 0.01 # Initial learning rate 
 min_lr = 1e-6 # Minimum learning rate to avoid infinite loop 
@@ -10,13 +12,14 @@ tries = 0 # Retry counter
 success = False 
 
 # Generate a random dataset 
-df = generate_random_linear_dataset(seed=42) 
+df = generate_random_quadratic_dataset(seed=42) 
 
 # Train the linear regression model 
 while lr >= min_lr and tries < max_retries: 
     try: 
         print(f"Attempt {tries+1}, lr={lr}") 
-        a, b, losses, epochs_ran = train_linear_regression(df, lr, epochs=1000, tolerance=1e-6, verbose=True) 
+        w, losses, epochs_ran, x_mean, x_std = train_poly2_regression(df, lr=lr, epochs=1000, tolerance=1e-6, verbose=True)
+        print("w:", w)
         success = True 
         break 
     except NumericalInstabilityError as e: 
@@ -28,11 +31,18 @@ while lr >= min_lr and tries < max_retries:
 if not success:
      raise Exception("Failed to train the model after multiple retries. Try starting with a smaller learning rate.") # Exit if training was unsuccessful 
 
-# Create the figure with plots 
-fig, (ax1, ax2) = make_figure(df, a, b, losses)
-fig.tight_layout()
-fig.savefig("result.png", dpi=200)
-print("Saved plot to result.png")
+x = np.array(df["x"], dtype=float)
+x_grid = np.linspace(x.min(), x.max(), 400)
+xs_grid = (x_grid - x_mean) / x_std
 
-# Show the plots 
-# plt.show()
+Phi_grid = np.zeros((len(x_grid), 3))
+for i in range(len(x_grid)):
+    Phi_grid[i, 0] = 1.0
+    Phi_grid[i, 1] = xs_grid[i]
+    Phi_grid[i, 2] = xs_grid[i] * xs_grid[i]
+
+y_grid = Phi_grid @ w
+
+# 4) pass to plotting
+fig, (ax1, ax2) = make_figure(df, losses, x_grid, y_grid)  # adjust signature
+fig.savefig("result.png", dpi=200)

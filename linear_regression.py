@@ -75,4 +75,43 @@ def train_linear_regression(df, lr = 0.01, epochs = 1000, tolerance = 1e-6, verb
     b_original = b - (a * x_mean) / x_std
     return a_original, b_original, losses, epochs_ran
 
-
+def train_poly2_regression(df, lr=0.01, epochs=1000, tolerance=1e-6, verbose=False):
+    n = len(df)
+    x = np.array(df["x"], dtype=float)
+    y = np.array(df["y"], dtype=float)
+    x_mean = x.mean()
+    x_std = x.std()
+    if x_std == 0:
+        raise NumericalInstabilityError("Standard deviation of x is zero, cannot normalize.")
+    xs = (x - x_mean) / x_std
+    # Build Phi with loops first (clear)
+    Phi = np.zeros((n, 3))
+    for i in range(n):
+        Phi[i, 0] = 1.0
+        Phi[i, 1] = xs[i]
+        Phi[i, 2] = xs[i] * xs[i]
+    w = np.zeros(3)
+    losses = []
+    for epoch in range(epochs):
+        # prediction (loop version first)
+        y_hat = np.zeros(n)
+        for i in range(n):
+            y_hat[i] = Phi[i,0]*w[0] + Phi[i,1]*w[1] + Phi[i,2]*w[2]
+        r = y_hat - y
+        loss = (1/n) * (r @ r)
+        losses.append(loss)
+        if np.isnan(loss) or np.isinf(loss) or loss > 1e12:
+            raise NumericalInstabilityError("Training unstable. Reduce lr.")
+        # gradient (loop version)
+        dw = np.zeros(3)
+        for j in range(3):
+            s = 0.0
+            for i in range(n):
+                s += Phi[i, j] * r[i]
+            dw[j] = (2/n) * s
+        w -= lr * dw
+        if len(losses) >= 2 and abs(losses[-2] - losses[-1]) < tolerance:
+            break
+    if verbose:
+        print(f"Converged in {len(losses)} epochs")
+    return w, losses, len(losses), x_mean, x_std

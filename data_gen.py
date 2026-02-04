@@ -3,6 +3,16 @@ import pandas as pd
 
 # Note: These functions were created by ChatGPT and not me. The main point of this project is for me to implement linear regression from scratch.
 
+import numpy as np
+import pandas as pd
+
+def generate_random_quadratic_dataset(seed=42, n=20, a=10.0, b=-1.2, c=0.03, noise_std=5.0):
+    rng = np.random.default_rng(seed)
+    x = rng.uniform(-50, 50, size=n)
+    noise = rng.normal(0.0, noise_std, size=n)
+    y = a + b*x + c*(x**2) + noise
+    return pd.DataFrame({"x": x, "y": y})
+
 def generate_random_linear_dataset(
     n_min: int = 12,
     n_max: int = 80,
