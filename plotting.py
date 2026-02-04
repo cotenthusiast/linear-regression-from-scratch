@@ -33,10 +33,16 @@ def plot_fit(ax, df, a, b):
     ax.set_ylabel("y")
     ax.legend()
 
-import numpy as np
-import matplotlib.pyplot as plt
-
 def make_figure(df, losses, x_fit=None, y_fit=None):
+    '''
+    Method that sets up the figure 
+
+    :param df: dataframe with x and y columns
+    :param losses: np array of losses during training
+    :param x_fit
+
+
+    '''
     x = np.array(df["x"], dtype=float)
     y = np.array(df["y"], dtype=float)
 

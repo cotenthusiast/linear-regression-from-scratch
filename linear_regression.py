@@ -76,42 +76,50 @@ def train_linear_regression(df, lr = 0.01, epochs = 1000, tolerance = 1e-6, verb
     return a_original, b_original, losses, epochs_ran
 
 def train_poly2_regression(df, lr=0.01, epochs=1000, tolerance=1e-6, verbose=False):
+    '''
+    Function that trains a polynomial regression model of degree 2 using gradient descent.
+    
+    :param df: dataframe with x and y columns
+    :param lr: learning rate for gradient descent
+    :param epochs: number of epochs to train for
+    :param tolerance: tolerance for stopping training based on loss improvement
+    :return: tuple containing weights (w0, w1, w2), list of losses (MSE over epochs), number of epochs ran, mean of x, std of x
+    '''
     n = len(df)
-    x = np.array(df["x"], dtype=float)
+    x_raw = np.array(df["x"], dtype=float)
     y = np.array(df["y"], dtype=float)
-    x_mean = x.mean()
-    x_std = x.std()
-    if x_std == 0:
+
+    mu = x_raw.mean()
+    s = x_raw.std()
+    if s == 0:
         raise NumericalInstabilityError("Standard deviation of x is zero, cannot normalize.")
-    xs = (x - x_mean) / x_std
-    # Build Phi with loops first (clear)
-    Phi = np.zeros((n, 3))
-    for i in range(n):
-        Phi[i, 0] = 1.0
-        Phi[i, 1] = xs[i]
-        Phi[i, 2] = xs[i] * xs[i]
-    w = np.zeros(3)
+
+    x = (x_raw - mu) / s  # standardized x
+
     losses = []
+    w = np.zeros(3)  # [w0, w1, w2]
+
     for epoch in range(epochs):
-        # prediction (loop version first)
-        y_hat = np.zeros(n)
-        for i in range(n):
-            y_hat[i] = Phi[i,0]*w[0] + Phi[i,1]*w[1] + Phi[i,2]*w[2]
+        y_hat = w[0] + w[1] * x + w[2] * (x ** 2)
         r = y_hat - y
-        loss = (1/n) * (r @ r)
+        loss = (1 / n) * (r @ r)
         losses.append(loss)
+
         if np.isnan(loss) or np.isinf(loss) or loss > 1e12:
             raise NumericalInstabilityError("Training unstable. Reduce lr.")
-        # gradient (loop version)
-        dw = np.zeros(3)
-        for j in range(3):
-            s = 0.0
-            for i in range(n):
-                s += Phi[i, j] * r[i]
-            dw[j] = (2/n) * s
-        w -= lr * dw
-        if len(losses) >= 2 and abs(losses[-2] - losses[-1]) < tolerance:
+
+        dw0 = (2 / n) * r.sum()
+        dw1 = (2 / n) * (r @ x)
+        dw2 = (2 / n) * (r @ (x ** 2))
+
+        w[0] -= lr * dw0
+        w[1] -= lr * dw1
+        w[2] -= lr * dw2
+
+        if check_tolerance(losses, tolerance):
             break
+
     if verbose:
         print(f"Converged in {len(losses)} epochs")
-    return w, losses, len(losses), x_mean, x_std
+
+    return w, losses, len(losses), mu, s
