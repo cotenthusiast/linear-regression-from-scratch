@@ -1,6 +1,5 @@
-from linear_regression import train_linear_regression, NumericalInstabilityError, train_poly2_regression 
-from data_gen import generate_random_linear_dataset , generate_random_quadratic_dataset
-from plotting import make_figure 
+from poly_regression import * 
+from data_gen import  *
 import matplotlib.pyplot as plt 
 import numpy as np
 
