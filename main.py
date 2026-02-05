@@ -1,6 +1,6 @@
-from linear_regression import train_linear_regression, NumericalInstabilityError 
-from data_gen import generate_random_linear_dataset 
-from plotting import make_figure 
+from linear_regression import * 
+from data_gen import * 
+from plotting import *
 import matplotlib.pyplot as plt 
 
 lr = 0.01 # Initial learning rate 
@@ -32,4 +32,4 @@ if not success:
 fig, (ax1, ax2) = make_figure(df, a, b, losses) 
 
 # Show the plots 
-plt.show()
+fig.savefig("result.png", dpi=200)
