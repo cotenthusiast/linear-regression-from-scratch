@@ -31,18 +31,27 @@ while lr >= min_lr and tries < max_retries:
 if not success:
      raise Exception("Failed to train the model after multiple retries. Try starting with a smaller learning rate.") # Exit if training was unsuccessful 
 
-x = np.array(df["x"], dtype=float)
-x_grid = np.linspace(x.min(), x.max(), 400)
-xs_grid = (x_grid - x_mean) / x_std
+x = np.array(df["x"], dtype = float)
+y = np.array(df["y"], dtype = float)
 
-Phi_grid = np.zeros((len(x_grid), 3))
-for i in range(len(x_grid)):
-    Phi_grid[i, 0] = 1.0
-    Phi_grid[i, 1] = xs_grid[i]
-    Phi_grid[i, 2] = xs_grid[i] * xs_grid[i]
+x_grid = np.linspace(x.min(), x.max(), 40)
+z_grid = (x_grid - x_mean) / x_std
+y_grid = w[0] + w[1] * z_grid + w[2] * z_grid ** 2
 
-y_grid = Phi_grid @ w
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
 
-# 4) pass to plotting
-fig, (ax1, ax2) = make_figure(df, losses, x_grid, y_grid)  # adjust signature
+ax1.scatter(x, y, c = "red")
+ax1.plot(x_grid, y_grid)
+ax1.set_title("Data + fitted curve")
+ax1.set_xlabel("x")
+ax1.set_ylabel("y")
+
+# Bottom: loss over epochs
+ax2.plot(range(1, len(losses) + 1), losses)
+ax2.set_title("Loss over epochs")
+ax2.set_xlabel("epoch")
+ax2.set_ylabel("MSE")
+
+fig.tight_layout()
 fig.savefig("result.png", dpi=200)
+
