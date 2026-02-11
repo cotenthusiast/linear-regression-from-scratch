@@ -1,144 +1,172 @@
-# Polynomial Regression From Scratch (Quadratic)
+* * * * *
 
-This repository implements **1D quadratic (degree-2) polynomial regression** from scratch using **gradient descent** with **MSE loss**.  
-The point is to understand prediction → residuals → loss → gradients → parameter updates end-to-end.
+Polynomial Regression From Scratch (Quadratic)
+==============================================
 
-## Project structure
+This repository implements **1D quadratic (degree-2) polynomial regression** from scratch using **gradient descent** with **MSE loss**.
 
-- `main.py`  
-  Runs the full pipeline: generate data → train → build fitted curve points → plot → save output.
+The goal is to understand the full pipeline:\
+prediction → residuals → loss → gradients → parameter updates.
 
-- `linear_regression.py`  
-  Core training loop for **quadratic regression** via gradient descent.
+* * * * *
 
-- `plotting.py`  
-  Generates a 2-panel figure: **data + fitted curve** and **loss vs epoch**.
+Project structure
+-----------------
 
-- `data_gen.py`  
-  Synthetic data generation used for testing (can be linear or quadratic depending on the function you call).
+-   `main.py`\
+    Runs the full pipeline: generate data → train → build fitted curve points → plot → save output.
 
-## What the model learns
+-   `linear_regression.py`\
+    Core training loop for **quadratic regression** via gradient descent.
 
-A quadratic curve (in 1D):
+-   `plotting.py`\
+    Generates a 2-panel figure:
 
-\[
-\hat{y} = w_0 + w_1 z + w_2 z^2
-\]
+    -   data + fitted curve
 
-Where the input is standardized for stability:
+    -   loss vs epoch
 
-\[
-z = \frac{x - \mu}{\sigma}
-\]
+-   `data_gen.py`\
+    Synthetic data generation used for testing\
+    (linear or quadratic depending on the function called).
 
-- \(w_0\): bias (intercept in standardized space)  
-- \(w_1\): linear term coefficient  
-- \(w_2\): quadratic term coefficient  
-- \(\mu\): mean of training \(x\)  
-- \(\sigma\): std of training \(x\)
+* * * * *
 
-**Important:** The training returns \(w\) in standardized-input space, so any prediction must scale inputs the same way.
+What the model learns
+---------------------
 
-## Training objective (MSE)
+A quadratic curve in 1D:
 
-Residuals:
+`y_hat = w0 + w1*z + w2*z^2`
 
-\[
-r_i = \hat{y}_i - y_i
-\]
+The input is standardized for numerical stability:
+
+`z = (x - mu) / sigma`
+
+Parameter meanings:
+
+-   `w0` : bias (intercept in standardized space)
+
+-   `w1` : linear coefficient
+
+-   `w2` : quadratic coefficient
+
+-   `mu` : mean of training x
+
+-   `sigma` : standard deviation of training x
+
+**Important:**\
+Training returns weights in standardized-input space.\
+Any prediction must apply the same scaling.
+
+* * * * *
+
+Training objective (MSE)
+------------------------
+
+Residual for each data point:
+
+`r_i = y_hat_i - y_i`
 
 Mean Squared Error:
 
-\[
-L = \frac{1}{n}\sum_{i=1}^{n} r_i^2
-\]
+`L = (1 / n) * sum(r_i^2)`
 
 Vector form:
 
-\[
-L = \frac{1}{n}(r \cdot r)
-\]
+`L = (1 / n) * (r dot r)`
 
-## Gradients and updates
+* * * * *
 
-With \(\hat{y}_i = w_0 + w_1 z_i + w_2 z_i^2\):
+Gradients and updates
+---------------------
 
-\[
-\frac{\partial L}{\partial w_0} = \frac{2}{n}\sum_{i=1}^{n} r_i
-\]
-\[
-\frac{\partial L}{\partial w_1} = \frac{2}{n}\sum_{i=1}^{n} r_i z_i
-\]
-\[
-\frac{\partial L}{\partial w_2} = \frac{2}{n}\sum_{i=1}^{n} r_i z_i^2
-\]
+Prediction:
 
-Gradient descent:
+`y_hat_i = w0 + w1*z_i + w2*z_i^2`
 
-\[
-w_k \leftarrow w_k - lr \cdot \frac{\partial L}{\partial w_k}
-\]
+Gradients:
 
-## Plotting the fitted curve
+`dL/dw0 = (2 / n) * sum(r_i)
+dL/dw1 = (2 / n) * sum(r_i * z_i)
+dL/dw2 = (2 / n) * sum(r_i * z_i^2)`
 
-To draw a smooth curve:
+Gradient descent update rule:
 
-1) Create dense x-values:
-- `x_grid = linspace(x_min, x_max, 400)`
+`w_k = w_k - lr * (dL/dw_k)`
 
-2) Scale them using training stats:
-- `z_grid = (x_grid - mu) / sigma`
+* * * * *
 
-3) Predict:
-- `y_grid = w0 + w1*z_grid + w2*(z_grid**2)`
+Plotting the fitted curve
+-------------------------
 
-4) Plot:
-- scatter `(x, y)`
-- line `(x_grid, y_grid)`
+To draw a smooth fitted curve:
 
-## How to run
+1.  Create dense x values:
+
+`x_grid = linspace(x_min, x_max, 400)`
+
+1.  Scale using training statistics:
+
+`z_grid = (x_grid - mu) / sigma`
+
+1.  Predict:
+
+`y_grid = w0 + w1*z_grid + w2*(z_grid**2)`
+
+1.  Plot:
+
+`scatter(x, y)
+line(x_grid, y_grid)`
+
+* * * * *
+
+How to run
+----------
 
 ### 1) Install dependencies
 
-```bash
-python3 -m venv .venv
+`python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -r requirements.txt
-```
+python -m pip install -r requirements.txt`
 
-2) Run
-```bash
-python3 main.py
-```
+### 2) Run
 
-### Output:
+`python3 main.py`
 
-- a saved plot image (e.g. result.png) showing:
+* * * * *
 
-  - data + fitted quadratic curve
+Output
+------
 
-  - loss over epochs
+A saved plot image (e.g. `result.png`) showing:
 
-## Expected behavior
+-   data + fitted quadratic curve
 
-- Loss generally decreases then plateaus.
+-   loss over epochs
 
-- With a quadratic dataset, the fitted curve visibly bends.
+* * * * *
 
-- With a linear dataset, the quadratic term typically goes near 0 and the fit looks like a line.
+Expected behavior
+-----------------
 
-## Notes / learning scope
+-   Loss decreases, then plateaus.
 
-- 1 input feature (x)
+-   Quadratic dataset → visibly curved fit.
 
-- polynomial expansion to degree 2
+-   Linear dataset → quadratic term approaches zero and the fit looks linear.
 
-- MSE loss
+* * * * *
 
-- gradient descent optimization
+Notes / learning scope
+----------------------
 
-- explicit feature scaling for training stability
+-   single input feature (x)
 
-## Attribution
+-   polynomial expansion to degree 2
 
-The matplotlib plotting boilerplate (figure layout + saving) had minor ChatGPT assistance. Everything else was implemented and verified by me (including the training loop and gradient derivations).
+-   MSE loss
+
+-   gradient descent optimization
+
+-   explicit feature scaling for training stability
