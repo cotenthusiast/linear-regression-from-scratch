@@ -1,137 +1,180 @@
-# Linear Regression From Scratch (Gradient Descent)
+Regression From Scratch (Gradient Descent)
+==========================================
 
-This repository contains a from-scratch implementation of **1D linear regression** trained with **gradient descent**.  
-The goal is to understand the mechanics behind prediction, residuals, loss functions, gradients, and iterative optimization (rather than treating ML as a black box).
+This repository contains from-scratch implementations of linear regression and polynomial regression trained with gradient descent.
 
-## Project structure
+The purpose is to build a clear, first-principles understanding of:
 
-- `main.py`  
-  Runs the full pipeline: generate data → train → plot.
+-   Prediction functions
 
-- `linear_regression.py`  
-  Core implementation: gradient descent training loop (MSE loss), feature scaling for stability, and conversion back to original units.
+-   Residuals and loss functions
 
-- `plotting.py`  
-  Plot utilities: loss curve and fitted line.
+-   Analytical gradients
 
-- `data_gen.py`  
-  Synthetic data generator used only to test the training loop on many randomized linear datasets.
+-   Iterative optimization with gradient descent
 
-## Data generation note
+-   Numerical stability (feature scaling)
 
-`data_gen.py` is a small synthetic-data helper used only to stress-test the training loop across different randomly generated linear datasets. It was produced with ChatGPT assistance and is not the focus of this project.
+-   Clean project structure and modular design
 
-The main learning objective here is the implementation and verification of the gradient-descent training loop in `linear_regression.py`.
+This is not intended to compete with libraries like scikit-learn. The goal is mechanical understanding and engineering clarity.
 
-## What the model learns
 
-We fit a straight line:
+Implemented models
+------------------
 
-$$
-\hat{y} = a x + b
-$$
+### 1) Linear Regression (1D)
 
-- $a$ is the slope
-- $b$ is the intercept
+Model:\
+y_hat = a*x + b
 
-## Training objective (MSE)
+Where:
 
-Define residuals:
+-   a = slope
 
-$$
-r_i = \hat{y}_i - y_i
-$$
+-   b = intercept
 
-Mean Squared Error (MSE):
+### 2) Polynomial Regression (1D)
 
-$$
-L = \frac{1}{n}\sum_{i=1}^{n} r_i^2
-$$
+Model:\
+y_hat = theta0 + theta1*x + theta2*x^2 + ... + thetad*x^d
 
-Vector form (what the code computes):
+Polynomial regression is implemented as linear regression on transformed features.
 
-$$
-L = \frac{1}{n}(r \cdot r)
-$$
 
-## Gradients and parameter updates
+Training objective (MSE)
+------------------------
 
-Gradients for MSE:
+Residual:\
+r_i = y_hat_i - y_i
 
-$$
-\frac{\partial L}{\partial a} = \frac{2}{n}\sum_{i=1}^{n} r_i x_i
-$$
+Mean Squared Error:\
+L = (1/n) * sum(r_i^2)
 
-$$
-\frac{\partial L}{\partial b} = \frac{2}{n}\sum_{i=1}^{n} r_i
-$$
+Vector form used in code:\
+L = (1/n) * (r dot r)
 
-Gradient descent update rule:
 
-$$
-a \leftarrow a - lr \cdot \frac{\partial L}{\partial a}
-$$
+Gradient descent updates
+------------------------
 
-$$
-b \leftarrow b - lr \cdot \frac{\partial L}{\partial b}
-$$
+For linear regression:\
+dL/da = (2/n) * sum(r_i * x_i)\
+dL/db = (2/n) * sum(r_i)
 
-## Feature scaling (stability)
+Update rule:\
+parameter = parameter - lr * gradient
 
-To make gradient descent more stable across different random datasets, the training loop standardizes $x$:
+Polynomial regression uses the matrix equivalent:\
+gradient = (2/n) * X^T * r
 
-$$
-x' = \frac{x - \mu}{\sigma}
-$$
 
-where:
-- $\mu$ is the mean of $x$
-- $\sigma$ is the standard deviation of $x$
+Feature scaling (stability)
+---------------------------
 
-The model is trained internally on $x'$, then converted back to original $x$ units so the final model is still:
+To improve gradient descent stability, the input feature is standardized:\
+x_scaled = (x - mean(x)) / std(x)
 
-$$
-\hat{y} = a_{\text{orig}} x + b_{\text{orig}}
-$$
+The model is trained internally on scaled features. Predictions are still returned in the original target units.
 
-Conversion back:
 
-$$
-a_{\text{orig}} = \frac{a'}{\sigma}
-$$
+Project structure
+-----------------
 
-$$
-b_{\text{orig}} = b' - a'\frac{\mu}{\sigma}
-$$
+src/\
+common/\
+metrics.py\
+reporting.py\
+types.py
 
-## How to run
+linear/\
+model.py\
+preprocessing.py\
+evaluate.py
 
-### 1) Install dependencies
+polynomial/\
+model.py\
+preprocessing.py\
+evaluate.py
 
-Create and activate a virtual environment (recommended), then install:
+scripts/\
+run_linear.py\
+run_polynomial.py
 
-```bash
-pip install -r requirements.txt
-```
+plots/
 
-### 2) Run
-```bash
-python main.py
-```
-You should see:
-- A loss vs epoch plot (loss decreases then plateaus)
-- a scatter plot of data + the fitted regression line 
+Design principles:
 
-## Expected behavior
-- The loss should generally decrease over epochs.
-- The fitted line should match the overall trend of the data.
-- Because the data generator adds noise, the line will not pass through every point.
+-   src/ contains reusable library code
 
-## Notes / learning status
-- This project is intentionally small and focused
-- 1 feature (x)
-- 1 target (y)
-- MSE loss
-- gradient descent optimization
+-   scripts/ contains runnable pipelines
 
-It’s designed as a baseline before moving to multi-feature regression (matrix form), classification, and other loss functions.
+-   Models use OOP (fit, predict)
+
+-   Evaluation and plotting are separated from training logic
+
+
+Datasets
+--------
+
+Two real datasets are used:
+
+-   Linear regression: sklearn Diabetes dataset (single feature)
+
+-   Polynomial regression: sklearn California Housing dataset (single feature)
+
+Using real data helps verify behavior beyond synthetic examples.
+
+
+How to run
+----------
+
+1.  Install dependencies\
+    pip install -r requirements.txt
+
+2.  Run linear regression\
+    python scripts/run_linear.py
+
+3.  Run polynomial regression\
+    python scripts/run_polynomial.py
+
+Outputs:
+
+-   Loss curves
+
+-   Predicted vs true plots
+
+-   Fitted polynomial curves
+
+Plots are saved in the plots/ directory.
+
+
+
+Refactoring note (AI usage)
+---------------------------
+
+The original implementation of gradient descent and the core training logic was written manually.
+
+Later, significant refactoring was performed to:
+
+-   Improve structure and modularity
+
+-   Introduce OOP design
+
+-   Separate preprocessing, training, and evaluation
+
+-   Clean up duplicated logic
+
+-   Standardize interfaces across models
+
+AI tools were used heavily during the refactoring phase. This usage was mainly for:
+
+-   Code organization suggestions
+
+-   Boilerplate restructuring
+
+-   Interface design ideas
+
+-   Cleanup and consistency improvements
+
+The math and training mechanics were understood and implemented before the refactor.
