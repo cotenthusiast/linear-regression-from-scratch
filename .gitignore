@@ -28,5 +28,5 @@ Thumbs.db
 *.tmp
 
 # Figures / outputs (optional: keep if you want tracked)
-# *.png
+*.png
 # *.jpg

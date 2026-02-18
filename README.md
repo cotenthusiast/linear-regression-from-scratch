@@ -1,172 +1,180 @@
-* * * * *
+Regression From Scratch (Gradient Descent)
+==========================================
 
-Polynomial Regression From Scratch (Quadratic)
-==============================================
+This repository contains from-scratch implementations of linear regression and polynomial regression trained with gradient descent.
 
-This repository implements **1D quadratic (degree-2) polynomial regression** from scratch using **gradient descent** with **MSE loss**.
+The purpose is to build a clear, first-principles understanding of:
 
-The goal is to understand the full pipeline:\
-prediction → residuals → loss → gradients → parameter updates.
+-   Prediction functions
 
-* * * * *
+-   Residuals and loss functions
 
-Project structure
------------------
+-   Analytical gradients
 
--   `main.py`\
-    Runs the full pipeline: generate data → train → build fitted curve points → plot → save output.
+-   Iterative optimization with gradient descent
 
--   `linear_regression.py`\
-    Core training loop for **quadratic regression** via gradient descent.
+-   Numerical stability (feature scaling)
 
--   `plotting.py`\
-    Generates a 2-panel figure:
+-   Clean project structure and modular design
 
-    -   data + fitted curve
+This is not intended to compete with libraries like scikit-learn. The goal is mechanical understanding and engineering clarity.
 
-    -   loss vs epoch
 
--   `data_gen.py`\
-    Synthetic data generation used for testing\
-    (linear or quadratic depending on the function called).
+Implemented models
+------------------
 
-* * * * *
+### 1) Linear Regression (1D)
 
-What the model learns
----------------------
+Model:\
+y_hat = a*x + b
 
-A quadratic curve in 1D:
+Where:
 
-`y_hat = w0 + w1*z + w2*z^2`
+-   a = slope
 
-The input is standardized for numerical stability:
+-   b = intercept
 
-`z = (x - mu) / sigma`
+### 2) Polynomial Regression (1D)
 
-Parameter meanings:
+Model:\
+y_hat = theta0 + theta1*x + theta2*x^2 + ... + thetad*x^d
 
--   `w0` : bias (intercept in standardized space)
+Polynomial regression is implemented as linear regression on transformed features.
 
--   `w1` : linear coefficient
-
--   `w2` : quadratic coefficient
-
--   `mu` : mean of training x
-
--   `sigma` : standard deviation of training x
-
-**Important:**\
-Training returns weights in standardized-input space.\
-Any prediction must apply the same scaling.
-
-* * * * *
 
 Training objective (MSE)
 ------------------------
 
-Residual for each data point:
+Residual:\
+r_i = y_hat_i - y_i
 
-`r_i = y_hat_i - y_i`
+Mean Squared Error:\
+L = (1/n) * sum(r_i^2)
 
-Mean Squared Error:
+Vector form used in code:\
+L = (1/n) * (r dot r)
 
-`L = (1 / n) * sum(r_i^2)`
 
-Vector form:
+Gradient descent updates
+------------------------
 
-`L = (1 / n) * (r dot r)`
+For linear regression:\
+dL/da = (2/n) * sum(r_i * x_i)\
+dL/db = (2/n) * sum(r_i)
 
-* * * * *
+Update rule:\
+parameter = parameter - lr * gradient
 
-Gradients and updates
----------------------
+Polynomial regression uses the matrix equivalent:\
+gradient = (2/n) * X^T * r
 
-Prediction:
 
-`y_hat_i = w0 + w1*z_i + w2*z_i^2`
+Feature scaling (stability)
+---------------------------
 
-Gradients:
+To improve gradient descent stability, the input feature is standardized:\
+x_scaled = (x - mean(x)) / std(x)
 
-`dL/dw0 = (2 / n) * sum(r_i)
-dL/dw1 = (2 / n) * sum(r_i * z_i)
-dL/dw2 = (2 / n) * sum(r_i * z_i^2)`
+The model is trained internally on scaled features. Predictions are still returned in the original target units.
 
-Gradient descent update rule:
 
-`w_k = w_k - lr * (dL/dw_k)`
+Project structure
+-----------------
 
-* * * * *
+src/\
+common/\
+metrics.py\
+reporting.py\
+types.py
 
-Plotting the fitted curve
--------------------------
+linear/\
+model.py\
+preprocessing.py\
+evaluate.py
 
-To draw a smooth fitted curve:
+polynomial/\
+model.py\
+preprocessing.py\
+evaluate.py
 
-1.  Create dense x values:
+scripts/\
+run_linear.py\
+run_polynomial.py
 
-`x_grid = linspace(x_min, x_max, 400)`
+plots/
 
-1.  Scale using training statistics:
+Design principles:
 
-`z_grid = (x_grid - mu) / sigma`
+-   src/ contains reusable library code
 
-1.  Predict:
+-   scripts/ contains runnable pipelines
 
-`y_grid = w0 + w1*z_grid + w2*(z_grid**2)`
+-   Models use OOP (fit, predict)
 
-1.  Plot:
+-   Evaluation and plotting are separated from training logic
 
-`scatter(x, y)
-line(x_grid, y_grid)`
 
-* * * * *
+Datasets
+--------
+
+Two real datasets are used:
+
+-   Linear regression: sklearn Diabetes dataset (single feature)
+
+-   Polynomial regression: sklearn California Housing dataset (single feature)
+
+Using real data helps verify behavior beyond synthetic examples.
+
 
 How to run
 ----------
 
-### 1) Install dependencies
+1.  Install dependencies\
+    pip install -r requirements.txt
 
-`python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt`
+2.  Run linear regression\
+    python scripts/run_linear.py
 
-### 2) Run
+3.  Run polynomial regression\
+    python scripts/run_polynomial.py
 
-`python3 main.py`
+Outputs:
 
-* * * * *
+-   Loss curves
 
-Output
-------
+-   Predicted vs true plots
 
-A saved plot image (e.g. `result.png`) showing:
+-   Fitted polynomial curves
 
--   data + fitted quadratic curve
+Plots are saved in the plots/ directory.
 
--   loss over epochs
 
-* * * * *
 
-Expected behavior
------------------
+Refactoring note (AI usage)
+---------------------------
 
--   Loss decreases, then plateaus.
+The original implementation of gradient descent and the core training logic was written manually.
 
--   Quadratic dataset → visibly curved fit.
+Later, significant refactoring was performed to:
 
--   Linear dataset → quadratic term approaches zero and the fit looks linear.
+-   Improve structure and modularity
 
-* * * * *
+-   Introduce OOP design
 
-Notes / learning scope
-----------------------
+-   Separate preprocessing, training, and evaluation
 
--   single input feature (x)
+-   Clean up duplicated logic
 
--   polynomial expansion to degree 2
+-   Standardize interfaces across models
 
--   MSE loss
+AI tools were used heavily during the refactoring phase. This usage was mainly for:
 
--   gradient descent optimization
+-   Code organization suggestions
 
--   explicit feature scaling for training stability
+-   Boilerplate restructuring
+
+-   Interface design ideas
+
+-   Cleanup and consistency improvements
+
+The math and training mechanics were understood and implemented before the refactor.
