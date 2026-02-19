@@ -1,4 +1,4 @@
-Regression From Scratch (Gradient Descent)
+Linear and Polynomial Regression From Scratch (Gradient Descent)
 ==========================================
 
 This repository contains from-scratch implementations of linear regression and polynomial regression trained with gradient descent.
